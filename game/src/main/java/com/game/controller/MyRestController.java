@@ -1,8 +1,11 @@
 package com.game.controller;
 
+import com.game.entity.Player;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class MyRestController {
@@ -11,8 +14,8 @@ public class MyRestController {
 
     }
 
-    @RequestMapping(value = "/rest/players", method = RequestMethod.GET)
-    public RestResponse restMethod(String name) {
+    @RequestMapping(path = "/rest/players", method = RequestMethod.GET)
+    public List<Player> getAllPlayers(String name) {
         return null;
     }
 }
