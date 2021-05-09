@@ -1,6 +1,6 @@
 package com.game.controller;
 
-import com.game.entity.Player;
+import com.game.model.Player;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
