@@ -3,7 +3,7 @@ package com.game.service;
 import com.game.controller.PlayerOrder;
 import com.game.entity.Profession;
 import com.game.entity.Race;
-import com.game.model.Player;
+import com.game.entity.Player;
 import com.game.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +15,16 @@ import java.util.List;
 @Service
 @Transactional
 public class PlayerServiceImpl implements PlayerService {
-    private PlayerRepository repository;
+
+    private PlayerRepository playerRepository;
 
     public PlayerServiceImpl() {
     }
 
     @Autowired
-    public PlayerServiceImpl(PlayerRepository repository) {
+    public PlayerServiceImpl(PlayerRepository playerRepository) {
         super();
-        this.repository = repository;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class PlayerServiceImpl implements PlayerService {
             Boolean banned
     ) {
         List<Player> players = new ArrayList<>();
-        repository.findAll().forEach((player) -> {
+        playerRepository.findAll().forEach((player) -> {
             if (name != null && !player.getName().contains(name)) return;
             if (title != null && !player.getTitle().contains(title)) return;
             if (race != null && player.getRace() != race) return;

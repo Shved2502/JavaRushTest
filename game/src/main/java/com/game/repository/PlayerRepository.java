@@ -1,6 +1,6 @@
 package com.game.repository;
 
-import com.game.model.Player;
+import com.game.entity.Player;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

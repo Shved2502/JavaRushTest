@@ -1,8 +1,8 @@
 package com.game.controller;
 
+import com.game.entity.Player;
 import com.game.entity.Profession;
 import com.game.entity.Race;
-import com.game.model.Player;
 import com.game.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,14 +15,14 @@ import java.util.List;
 @RestController
 public class MyRestController {
 
-    private PlayerService service;
+    private PlayerService playerService;
 
     public MyRestController() {
     }
 
     @Autowired
-    public MyRestController(PlayerService service) {
-        this.service = service;
+    public MyRestController(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
     @RequestMapping(path = "/rest/players", method = RequestMethod.GET)
@@ -38,8 +38,8 @@ public class MyRestController {
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
             @RequestParam(value = "pageSize", required = false) Integer pageSize
             ) {
-        final List<Player> players = service.getPlayers(name, title, race, profession, experience, level, untilNextLevel, banned);
+        final List<Player> players = playerService.getPlayers(name, title, race, profession, experience, level, untilNextLevel, banned);
 
-        return service.getPage(players, pageNumber, pageSize);
+        return playerService.getPage(players, pageNumber, pageSize);
     }
 }
