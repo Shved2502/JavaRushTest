@@ -10,17 +10,22 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
 @Transactional
 public class PlayerServiceImpl implements PlayerService {
 
+    // Checked
     private PlayerRepository playerRepository;
 
+    // Checked
     public PlayerServiceImpl() {
     }
 
+    // Checked
     @Autowired
     public PlayerServiceImpl(PlayerRepository playerRepository) {
         super();
@@ -55,8 +60,8 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public void create(Player player) {
-
+    public Player create(Player player) {
+        return playerRepository.save(player);
     }
 
     @Override
@@ -84,7 +89,7 @@ public class PlayerServiceImpl implements PlayerService {
         return null;
     }
 
-    // Under consideration
+    // Checked
     @Override
     public List<Player> getPage(List<Player> players, Integer pageNumber, Integer pageSize) {
         final Integer page = pageNumber == null ? 0 : pageNumber;
@@ -93,5 +98,49 @@ public class PlayerServiceImpl implements PlayerService {
         int to = from + size;
         if (to > players.size()) to = players.size();
         return players.subList(from, to);
+    }
+
+    // Under consideration
+    @Override
+    public boolean isPlayerValid(Player player) {
+        return player != null && isNameValid(player.getName())
+                && isTitleValid(player.getTitle())
+                && isExperienceValid(player.getExperience())
+                && isBirthdayValid(player.getBirthday());
+    }
+
+    // Checked
+    public boolean isNameValid(String name) {
+        final int maxNameLength = 12;
+        return name != null && !name.isEmpty() && name.length() <= maxNameLength;
+    }
+
+    // Checked
+    public boolean isTitleValid(String title) {
+        final int maxTitleLength = 30;
+        return title != null && !title.isEmpty() && title.length() <= maxTitleLength;
+    }
+
+    // Checked
+    public boolean isExperienceValid(Integer experience) {
+        final Integer minExperienceValue = 0;
+        final Integer maxExperienceValue = 10_000_000;
+        return experience != null
+                && experience.compareTo(minExperienceValue) >= 0
+                && experience.compareTo(maxExperienceValue) <=0;
+    }
+
+    // Checked
+    private boolean isBirthdayValid(Date birthday) {
+        final Date minBirthday = getDateForYear(2000);
+        final Date maxBirthday = getDateForYear(3000);
+        return birthday != null && birthday.after(minBirthday) && birthday.before(maxBirthday);
+    }
+
+    // Checked
+    private Date getDateForYear(int year) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        return calendar.getTime();
     }
 }

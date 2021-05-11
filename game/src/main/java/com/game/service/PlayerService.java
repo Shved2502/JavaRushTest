@@ -20,7 +20,7 @@ public interface PlayerService {
             Boolean banned
     );
 
-    void create(Player player);
+    Player create(Player player);
 
     boolean update(Player player);
 
@@ -34,4 +34,6 @@ public interface PlayerService {
     Long countPlayers(List<Player> players, PlayerOrder order);
 
     List<Player> getPage(List<Player> ships, Integer pageNumber, Integer pageSize);
+
+    boolean isPlayerValid(Player player);
 }

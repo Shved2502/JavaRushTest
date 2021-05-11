@@ -5,21 +5,23 @@ import com.game.entity.Profession;
 import com.game.entity.Race;
 import com.game.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 public class MyRestController {
 
+    // Checked
     private PlayerService playerService;
 
+    // Checked
     public MyRestController() {
     }
 
+    // Checked
     @Autowired
     public MyRestController(PlayerService playerService) {
         this.playerService = playerService;
@@ -41,5 +43,17 @@ public class MyRestController {
         final List<Player> players = playerService.getPlayers(name, title, race, profession, experience, level, untilNextLevel, banned);
 
         return playerService.getPage(players, pageNumber, pageSize);
+    }
+
+    @RequestMapping(path = "/rest/players", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
+        if (!playerService.isPlayerValid(player)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (player.getBanned() == null) player.setBanned(false);
+        final Player savedPlayer = playerService.create(player);
+
+        return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
     }
 }
