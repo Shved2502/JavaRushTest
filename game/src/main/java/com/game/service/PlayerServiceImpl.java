@@ -41,6 +41,7 @@ public class PlayerServiceImpl implements PlayerService {
             Integer experience,
             Integer level,
             Integer untilNextLevel,
+            Date birthday,
             Boolean banned
     ) {
         List<Player> players = new ArrayList<>();
@@ -74,9 +75,10 @@ public class PlayerServiceImpl implements PlayerService {
         return false;
     }
 
+    //Passed
     @Override
     public Player getPlayer(Long id) {
-        return null;
+        return playerRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -107,6 +109,19 @@ public class PlayerServiceImpl implements PlayerService {
                 && isTitleValid(player.getTitle())
                 && isExperienceValid(player.getExperience())
                 && isBirthdayValid(player.getBirthday());
+    }
+
+    // Need a safety cast to Integer
+    @Override
+    public Integer calculateLevel(Integer experience) {
+        double result = (Math.sqrt(2500 + 200 * experience) - 50 ) / 2;
+        return null;
+    }
+
+    @Override
+    public Integer calculateUntilNextLevel(Integer level, Integer experience) {
+        Integer result = 50 * (level + 1) * (level + 2) - experience;
+        return null;
     }
 
     // Checked

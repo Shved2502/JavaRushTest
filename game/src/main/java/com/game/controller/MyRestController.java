@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -38,9 +39,11 @@ public class MyRestController {
             @RequestParam(value = "untilNextLevel", required = false) Integer untilNextLevel,
             @RequestParam(value = "banned", required = false) Boolean banned,
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "birthday", required = false) Date birthday
             ) {
-        final List<Player> players = playerService.getPlayers(name, title, race, profession, experience, level, untilNextLevel, banned);
+        final List<Player> players = playerService.getPlayers(name, title, race, profession,
+                experience, level, untilNextLevel, birthday,  banned);
 
         return playerService.getPage(players, pageNumber, pageSize);
     }
@@ -52,8 +55,40 @@ public class MyRestController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         if (player.getBanned() == null) player.setBanned(false);
-        final Player savedPlayer = playerService.create(player);
+        player.setRace(player.getRace());
+        player.setProfession(player.getProfession());
+        player.setLevel(playerService.calculateLevel(player.getExperience()));
+        player.setUntilNextLevel(playerService.calculateUntilNextLevel(player.getLevel(), player.getExperience()));
 
+        final Player savedPlayer = playerService.create(player);
         return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
+    }
+
+
+//--------------------------PASSED CODE--------------------------
+
+    //Passed
+    @RequestMapping(path = "/rest/players/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Player> getPlayer(@PathVariable(value = "id") String pathId) {
+        final Long id = convertIdToLong(pathId);
+        if (id == null || id <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        final Player player = playerService.getPlayer(id);
+        if (player == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(player, HttpStatus.OK);
+    }
+
+    //Final version
+    private Long convertIdToLong(String pathId) {
+        if (pathId == null) {
+            return null;
+        } else try {
+            return Long.parseLong(pathId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
