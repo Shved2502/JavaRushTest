@@ -32,28 +32,36 @@ public class PlayerServiceImpl implements PlayerService {
         this.playerRepository = playerRepository;
     }
 
+    // Passed
     @Override
     public List<Player> getPlayers(
             String name,
             String title,
             Race race,
             Profession profession,
-            Integer experience,
-            Integer level,
-            Integer untilNextLevel,
-            Date birthday,
-            Boolean banned
+            Long after,
+            Long before,
+            Boolean banned,
+            Integer minExperience,
+            Integer maxExperience,
+            Integer minLevel,
+            Integer maxLevel
     ) {
+        final Date afterDate = after == null ? null : new Date(after);
+        final Date beforeDate = before == null ? null : new Date(before);
         List<Player> players = new ArrayList<>();
         playerRepository.findAll().forEach((player) -> {
             if (name != null && !player.getName().contains(name)) return;
             if (title != null && !player.getTitle().contains(title)) return;
             if (race != null && player.getRace() != race) return;
             if (profession != null && player.getProfession() != profession) return;
+            if (afterDate != null && player.getBirthday().before(afterDate)) return;
+            if (beforeDate != null && player.getBirthday().after(beforeDate)) return;
             if (banned != null && player.getBanned().booleanValue() != banned.booleanValue()) return;
-            if (experience != null && player.getExperience().compareTo(experience) < 0) return;
-            if (level != null && player.getLevel().compareTo(level) > 0) return;
-            if (untilNextLevel != null && player.getUntilNextLevel().compareTo(untilNextLevel) < 0) return;
+            if (minExperience != null && player.getExperience().compareTo(minExperience) < 0) return;
+            if (maxExperience != null && player.getExperience().compareTo(maxExperience) > 0) return;
+            if (minLevel != null && player.getLevel().compareTo(minLevel) < 0) return;
+            if (maxLevel != null && player.getLevel().compareTo(maxLevel) > 0) return;
 
             players.add(player);
         });
@@ -61,18 +69,73 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player create(Player player) {
+    public Player update(Player lastPlayer, Player newPlayer) {
+        boolean shouldChangeLevel = false;
+
+        final String name = newPlayer.getName();
+        if (name != null) {
+            if (isNameValid(name)) {
+                lastPlayer.setName(name);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        final String title = newPlayer.getTitle();
+        if (title != null) {
+            if (isTitleValid(title)) {
+                lastPlayer.setTitle(title);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        if (newPlayer.getRace() != null) {
+            lastPlayer.setRace(newPlayer.getRace());
+        }
+        if (newPlayer.getProfession() != null) {
+            lastPlayer.setProfession(newPlayer.getProfession());
+        }
+        final Date birthday = newPlayer.getBirthday();
+        if (birthday != null) {
+            if (isBirthdayValid(birthday)) {
+                lastPlayer.setBirthday(birthday);
+                shouldChangeLevel = true;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        if (newPlayer.getBanned() != null) {
+            lastPlayer.setBanned(newPlayer.getBanned());
+            shouldChangeLevel = true;
+        }
+        final Integer experience = newPlayer.getExperience();
+        if (experience != null) {
+            if (isExperienceValid(experience)) {
+                lastPlayer.setExperience(experience);
+                shouldChangeLevel = true;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        if (shouldChangeLevel) {
+            final Integer level = calculateLevel(lastPlayer.getExperience());
+            lastPlayer.setLevel(level);
+            final Integer untilNextLevel = calculateUntilNextLevel(level, lastPlayer.getExperience());
+            lastPlayer.setUntilNextLevel(untilNextLevel);
+        }
+        playerRepository.save(lastPlayer);
+        return lastPlayer;
+    }
+
+    // Passed
+    @Override
+    public Player save(Player player) {
         return playerRepository.save(player);
     }
 
+    //Passed
     @Override
-    public boolean update(Player player) {
-        return false;
-    }
-
-    @Override
-    public boolean delete(Player player) {
-        return false;
+    public void delete(Player player) {
+        playerRepository.delete(player);
     }
 
     //Passed
@@ -83,12 +146,19 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public List<Player> sortedPlayers(List<Player> players, PlayerOrder order) {
-        return null;
-    }
-
-    @Override
-    public Long countPlayers(List<Player> players, PlayerOrder order) {
-        return null;
+        if (order != null) {
+            players.sort((player1, player2) -> {
+                switch (order) {
+                    case ID: return player1.getId().compareTo(player2.getId());
+                    case NAME: return player1.getName().compareTo(player2.getName());
+                    case EXPERIENCE: return player1.getExperience().compareTo(player2.getExperience());
+                    case BIRTHDAY: return player1.getBirthday().compareTo(player2.getBirthday());
+                    case LEVEL: return player1.getLevel().compareTo(player2.getLevel());
+                    default: return 0;
+                }
+            });
+        }
+        return players;
     }
 
     // Checked
@@ -102,7 +172,7 @@ public class PlayerServiceImpl implements PlayerService {
         return players.subList(from, to);
     }
 
-    // Under consideration
+    // Checked
     @Override
     public boolean isPlayerValid(Player player) {
         return player != null && isNameValid(player.getName())
@@ -111,17 +181,17 @@ public class PlayerServiceImpl implements PlayerService {
                 && isBirthdayValid(player.getBirthday());
     }
 
-    // Need a safety cast to Integer
+    // Passed
     @Override
     public Integer calculateLevel(Integer experience) {
-        double result = (Math.sqrt(2500 + 200 * experience) - 50 ) / 2;
-        return null;
+        final double result = (Math.sqrt(2500 + 200 * experience) - 50 ) / 100;
+        return (int) result;
     }
 
+    // Passed
     @Override
     public Integer calculateUntilNextLevel(Integer level, Integer experience) {
-        Integer result = 50 * (level + 1) * (level + 2) - experience;
-        return null;
+        return 50 * (level + 1) * (level + 2) - experience;
     }
 
     // Checked

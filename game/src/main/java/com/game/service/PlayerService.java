@@ -15,25 +15,24 @@ public interface PlayerService {
             String title,
             Race race,
             Profession profession,
-            Integer experience,
-            Integer level,
-            Integer untilNextLevel,
-            Date birthday,
-            Boolean banned
+            Long after,
+            Long before,
+            Boolean banned,
+            Integer minExperience,
+            Integer maxExperience,
+            Integer minLevel,
+            Integer maxLevel
     );
 
-    Player create(Player player);
+    Player save(Player player);
 
-    boolean update(Player player);
+    Player update(Player lastPlayer, Player newPlayer);
 
-    boolean delete(Player player);
+    void delete(Player player);
 
     Player getPlayer(Long id);
 
     List<Player> sortedPlayers(List<Player> players, PlayerOrder order);
-
-    // Under consideration
-    Long countPlayers(List<Player> players, PlayerOrder order);
 
     List<Player> getPage(List<Player> ships, Integer pageNumber, Integer pageSize);
 
