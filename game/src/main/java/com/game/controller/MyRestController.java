@@ -14,44 +14,16 @@ import java.util.List;
 @RestController
 public class MyRestController {
 
-    // Checked
     private PlayerService playerService;
 
-    // Checked
     public MyRestController() {
     }
 
-    // Checked
     @Autowired
     public MyRestController(PlayerService playerService) {
         this.playerService = playerService;
     }
 
-    @RequestMapping(path = "/rest/players/{id}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Player> updateShip(
-            @PathVariable(value = "id") String pathId,
-            @RequestBody Player player
-    ) {
-        final ResponseEntity<Player> entity = getPlayer(pathId);
-        final Player savedPlayer = entity.getBody();
-        if (savedPlayer == null) {
-            return entity;
-        }
-
-        final Player result;
-        try {
-            result = playerService.update(savedPlayer, player);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-
-//--------------------------PASSED CODE--------------------------
-
-    // Passed
     @RequestMapping(path = "/rest/players", method = RequestMethod.GET)
     public List<Player> getAllPlayers(
             @RequestParam(value = "name", required = false) String name,
@@ -77,9 +49,8 @@ public class MyRestController {
         return playerService.getPage(sortedPlayers, pageNumber, pageSize);
     }
 
-    // Passed
     @RequestMapping(path = "/rest/players/count", method = RequestMethod.GET)
-    public Integer getShipsCount(
+    public Integer getPlayersCount(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "race", required = false) Race race,
@@ -96,7 +67,6 @@ public class MyRestController {
                 minExperience, maxExperience, minLevel, maxLevel).size();
     }
 
-    // Passed
     @RequestMapping(path = "/rest/players", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
@@ -113,7 +83,6 @@ public class MyRestController {
         return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
     }
 
-    //Passed
     @RequestMapping(path = "/rest/players/{id}", method = RequestMethod.GET)
     public ResponseEntity<Player> getPlayer(@PathVariable(value = "id") String pathId) {
         final Long id = convertIdToLong(pathId);
@@ -127,19 +96,38 @@ public class MyRestController {
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
-    //Passed
+    @RequestMapping(path = "/rest/players/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Player> updatePlayer(
+            @PathVariable(value = "id") String pathId,
+            @RequestBody Player player
+    ) {
+        final ResponseEntity<Player> entity = getPlayer(pathId);
+        final Player savedPlayer = entity.getBody();
+        if (savedPlayer == null) {
+            return entity;
+        }
+
+        final Player result;
+        try {
+            result = playerService.update(savedPlayer, player);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @RequestMapping(path = "/rest/players/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Player> deletePlayer(@PathVariable(value = "id") String pathId) {
         final ResponseEntity<Player> entity = getPlayer(pathId);
-        final Player savedShip = entity.getBody();
-        if (savedShip == null) {
+        final Player savedPlayer = entity.getBody();
+        if (savedPlayer == null) {
             return entity;
         }
-        playerService.delete(savedShip);
+        playerService.delete(savedPlayer);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //Final version
     private Long convertIdToLong(String pathId) {
         if (pathId == null) {
             return null;

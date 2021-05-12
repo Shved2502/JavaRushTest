@@ -18,21 +18,17 @@ import java.util.List;
 @Transactional
 public class PlayerServiceImpl implements PlayerService {
 
-    // Checked
     private PlayerRepository playerRepository;
 
-    // Checked
     public PlayerServiceImpl() {
     }
 
-    // Checked
     @Autowired
     public PlayerServiceImpl(PlayerRepository playerRepository) {
         super();
         this.playerRepository = playerRepository;
     }
 
-    // Passed
     @Override
     public List<Player> getPlayers(
             String name,
@@ -126,19 +122,16 @@ public class PlayerServiceImpl implements PlayerService {
         return lastPlayer;
     }
 
-    // Passed
     @Override
     public Player save(Player player) {
         return playerRepository.save(player);
     }
 
-    //Passed
     @Override
     public void delete(Player player) {
         playerRepository.delete(player);
     }
 
-    //Passed
     @Override
     public Player getPlayer(Long id) {
         return playerRepository.findById(id).orElse(null);
@@ -161,7 +154,6 @@ public class PlayerServiceImpl implements PlayerService {
         return players;
     }
 
-    // Checked
     @Override
     public List<Player> getPage(List<Player> players, Integer pageNumber, Integer pageSize) {
         final Integer page = pageNumber == null ? 0 : pageNumber;
@@ -172,7 +164,6 @@ public class PlayerServiceImpl implements PlayerService {
         return players.subList(from, to);
     }
 
-    // Checked
     @Override
     public boolean isPlayerValid(Player player) {
         return player != null && isNameValid(player.getName())
@@ -181,32 +172,27 @@ public class PlayerServiceImpl implements PlayerService {
                 && isBirthdayValid(player.getBirthday());
     }
 
-    // Passed
     @Override
     public Integer calculateLevel(Integer experience) {
         final double result = (Math.sqrt(2500 + 200 * experience) - 50 ) / 100;
         return (int) result;
     }
 
-    // Passed
     @Override
     public Integer calculateUntilNextLevel(Integer level, Integer experience) {
         return 50 * (level + 1) * (level + 2) - experience;
     }
 
-    // Checked
     public boolean isNameValid(String name) {
         final int maxNameLength = 12;
         return name != null && !name.isEmpty() && name.length() <= maxNameLength;
     }
 
-    // Checked
     public boolean isTitleValid(String title) {
         final int maxTitleLength = 30;
         return title != null && !title.isEmpty() && title.length() <= maxTitleLength;
     }
 
-    // Checked
     public boolean isExperienceValid(Integer experience) {
         final Integer minExperienceValue = 0;
         final Integer maxExperienceValue = 10_000_000;
@@ -215,14 +201,12 @@ public class PlayerServiceImpl implements PlayerService {
                 && experience.compareTo(maxExperienceValue) <=0;
     }
 
-    // Checked
     private boolean isBirthdayValid(Date birthday) {
         final Date minBirthday = getDateForYear(2000);
         final Date maxBirthday = getDateForYear(3000);
         return birthday != null && birthday.after(minBirthday) && birthday.before(maxBirthday);
     }
 
-    // Checked
     private Date getDateForYear(int year) {
         final Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
